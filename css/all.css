@@ -1,9 +1,5 @@
 /* Variables */
 /* Resets */
-div, header, footer {
-  padding: 5px;
-}
-
 hr {
   color: #cdbdbd;
 }
@@ -49,8 +45,13 @@ body #side-panel {
   }
 }
 
+#main-panel, #side-panel, body > header, body > footer {
+  padding: 5px;
+}
+
 .inline-button-container {
   display: inline-block;
+  padding: 5px;
 }
 
 /*# sourceMappingURL=all.css.map */

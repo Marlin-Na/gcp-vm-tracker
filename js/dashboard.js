@@ -1,3 +1,4 @@
+'use strict';
 
 const GAPI_CONFIG = {
     // Enter an API key from the Google API Console:
@@ -54,14 +55,20 @@ function update_signinStatus() {
     }
 }
 
-function update_table() {
+async function update_table() {
     let isSignedIn = gapi.auth2.getAuthInstance().isSignedIn.get();
     if (isSignedIn) {
-        makeApiCall();
+        await data_controller.update_instances();
+        table_controller.set_data(data_controller.all_instances.slice()); // copy or not??
     } else {
         alert("Please signin with your Google Account first.");
     }
 }
+
+///// global variables  //////////////////////////
+
+let table_controller;
+let data_controller;
 
 ///// This is the main entry point  //////////////
 
@@ -70,7 +77,9 @@ window.onload = function() {
     gapi.load('client:auth2', function() {
         gapi.client.init(GAPI_CONFIG)
             .then(set_signin)
-            .then(add_dom_handlers);
+            .then(add_dom_handlers)
+            .then(init_table)
+            .then(init_datacontroller);
     });
     function set_signin() {
         // Listen for sign-in state changes.
@@ -85,6 +94,12 @@ window.onload = function() {
         doms.authorizeButton.onclick = handle_authorizeButton;
         doms.signoutButton.onclick = handle_signoutButton;
         doms.updateButton.onclick = handle_updateButton;
+    }
+    function init_table() {
+        table_controller = new TableController();
+    }
+    function init_datacontroller() {
+        data_controller = new ComputeDataHandler();
     }
 }
 
@@ -146,15 +161,67 @@ class ComputeDataHandler {
     }
 }
 
-let all_projects = [];
-let all_instances = [];
-
-function makeApiCall() {
-    let data = new ComputeDataHandler();
-    window.data = data;
-    data.update_instances().then(res => {
-        console.log(data.all_instances);
-    });
-    //gapi.client.compute.instances.list({ project: "broad-getzlab-gdan", zone: "us-east1-d" })
-    //    .then(res => console.log(res))
+class TableController {
+    constructor() {
+        let table_dom = document.getElementById("vm-table");
+        let columnDefs = [
+            {
+                headerName: "Name",
+                field: "name",
+                sortable: true,
+                cellRenderer: function(params) {
+                    let name = params.value;
+                    let zone_url = params.data.zone;
+                    let [a, project, b, zone] = zone_url.replace("https://www.googleapis.com/compute/v1/", "").split("/");
+                    let href = "https://console.cloud.google.com/compute/instances?project=" + project;
+                    return '<a href="'+ href +'" target="_blank" >'+ name +'</a>'
+                }
+            },
+            {
+                headerName: "Project/Zone",
+                field: "zone",
+                sortable: true,
+                valueFormatter: function(params) {
+                    // something like "https://www.googleapis.com/compute/v1/projects/broad-getzlab-gdan/zones/us-east1-d"
+                    let zone_url = params.value;
+                    let [a, project, b, zone] = zone_url.replace("https://www.googleapis.com/compute/v1/", "").split("/");
+                    return project + "/" + zone;
+                }
+            },
+            {
+                headerName: "Machine Type",
+                field: "machineType",
+                sortable: true,
+                valueFormatter: function(params) {
+                    // something like "https://www.googleapis.com/compute/v1/projects/broad-getzlab-gdan/zones/us-central1-a/machineTypes/n1-standard-1"
+                    let machineType_url = params.value;
+                    let machineType = machineType_url.replace("https://www.googleapis.com/compute/v1/", "").split("/").slice(-1)[0];
+                    return machineType;
+                }
+            },
+            {
+                headerName: "Status",
+                field: "status",
+                sortable: true,
+                cellStyle: function(params) {
+                    let status = params.value;
+                    if (status === "RUNNING")
+                        return {backgroundColor: "lightgreen"};
+                    if (status === "TERMINATED")
+                        return {backgroundColor: "darkred", color: "white"}
+                    return {};
+                }
+            }
+        ];
+        let grid_options = {
+            columnDefs: columnDefs,
+            rowData: [],
+            domLayout: 'autoHeight'
+        }
+        this.table = new agGrid.Grid(table_dom, grid_options);
+    }
+    set_data(instances) {
+        this.table.gridOptions.api.setRowData(instances);
+    }
 }
+

@@ -25,6 +25,10 @@
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="js/dashboard.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47" crossorigin="anonymous">
+
+    <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-grid.css">
+    <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-theme-balham.css">
     <link rel="stylesheet" href="css/all.css">
   </head>
   <body>
@@ -32,12 +36,8 @@
       <h1>GCP VM Management</h1>
     </header>
 
-
-
-
     <div id='main-panel'>
-
-      <p>table here</p>
+      <div id="vm-table" style="width: 100%;" class="ag-theme-balham"></div>
     </div>
 
 

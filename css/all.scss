@@ -9,10 +9,6 @@ $dark2: #3f72af;
 
 /* Resets */
 
-div, header, footer {
-    padding: 5px;
-}
-
 hr {
     color: darken($light1, 20);
 }
@@ -66,6 +62,11 @@ body {
     }
 }
 
+#main-panel, #side-panel, body>header, body>footer {
+    padding: 5px;
+}
+
 .inline-button-container {
     display: inline-block;
+    padding: 5px;
 }
