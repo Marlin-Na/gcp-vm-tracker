@@ -121,24 +121,27 @@ class ComputeDataHandler {
                     }
                 }
             }
-        }
+        };
 
-        for (let project of this.all_projects.slice().reverse()) {
+        const fetch_project = async function(project) {
             let request_params = {project: project}
             try {
                 let response = await gapi.client.compute.instances.aggregatedList(request_params).getPromise();
-                this.tick = this.tick + 1;
+                _this.tick = _this.tick + 1;
                 process_response(response);
                 while (response.nextPageToken) {
                     request_params.pageToken = response.nextPageToken;
                     response = await gapi.client.compute.instaces.aggregatedList(request_params).getPromise();
-                    this.tick = this.tick + 1;
+                    _this.tick = _this.tick + 1;
                     process_response(response);
                 }
             } catch (error) {
                 console.error("Error when fetching instances", error);
             }
-        }
+        };
+
+        // Fire all request concurrently
+        await Promise.all(this.all_projects.slice().reverse().map(fetch_project));
         this.tick = 0;
     }
 }
