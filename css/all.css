@@ -1,0 +1,56 @@
+/* Variables */
+/* Resets */
+div, header, footer {
+  padding: 5px;
+}
+
+hr {
+  color: #cdbdbd;
+}
+
+.pure-button {
+  width: 120px;
+  color: white;
+  border-radius: 4px;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  background-color: #112d4e;
+  font-weight: bold;
+}
+
+/* Dashboard Layout */
+body {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: minmax(5vw, max-content) minmax(calc(100vh - 10vw - 4em), max-content) minmax(5vw, max-content);
+  grid-gap: 1em;
+  /* Center the body */
+  margin: 0 auto;
+  max-width: 90em;
+  /* Color */
+  background-color: #f9f7f7;
+}
+body > header, body > footer {
+  grid-column: 1/span 5;
+}
+body #main-panel {
+  grid-column: 1/span 3;
+}
+body #side-panel {
+  grid-column: span 2;
+  /*
+  background-color: darken($light1, 4);
+  */
+  border-left: 2px solid #cdbdbd;
+}
+@media (max-width: 700px) {
+  body #main-panel,
+body #side-panel {
+    grid-column: 1/span 5;
+  }
+}
+
+.inline-button-container {
+  display: inline-block;
+}
+
+/*# sourceMappingURL=all.css.map */

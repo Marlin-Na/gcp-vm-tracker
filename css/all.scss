@@ -1,0 +1,71 @@
+
+/* Variables */
+
+
+$light2: #dbe2ef;
+$light1: #f9f7f7;
+$dark1: #112d4e;
+$dark2: #3f72af;
+
+/* Resets */
+
+div, header, footer {
+    padding: 5px;
+}
+
+hr {
+    color: darken($light1, 20);
+}
+
+.pure-button {
+    width: 120px;
+    color: white;
+    border-radius: 4px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    background-color: $dark1;
+    font-weight: bold;
+}
+
+/* Dashboard Layout */
+
+body {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: minmax(5vw, max-content) minmax(calc(100vh - 10vw - 4em), max-content) minmax(5vw, max-content);
+    grid-gap: 1em;
+
+    /* Center the body */
+    margin: 0 auto;
+    max-width: 90em;
+
+    /* Color */
+    background-color: $light1;
+
+    > header, > footer {
+        grid-column: 1 / span 5;
+    }
+
+    #main-panel {
+        grid-column: 1 / span 3;
+    }
+
+    #side-panel {
+        grid-column: span 2;
+
+        /*
+        background-color: darken($light1, 4);
+        */
+        border-left: 2px solid darken($light1, 20);
+    }
+
+    @media (max-width: 700px) {
+        #main-panel,
+        #side-panel {
+            grid-column: 1 / span 5;
+        }
+    }
+}
+
+.inline-button-container {
+    display: inline-block;
+}
