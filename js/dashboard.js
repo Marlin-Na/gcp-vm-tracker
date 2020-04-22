@@ -27,16 +27,17 @@ const DOM_IDS = {
 
 ///// DOM Handlers  //////////////////////////////
 
-function handle_authorizeButton(event) {
-    gapi.auth2.getAuthInstance().signIn();
+async function handle_authorizeButton(event) {
+    await gapi.auth2.getAuthInstance().signIn();
+    await update_table();
 }
 
-function handle_signoutButton(event) {
-    gapi.auth2.getAuthInstance().signOut();
+async function handle_signoutButton(event) {
+    await gapi.auth2.getAuthInstance().signOut();
 }
 
-function handle_updateButton(event) {
-    update_table();
+async function handle_updateButton(event) {
+    await update_table();
 }
 
 function update_signinStatus() {
@@ -56,12 +57,19 @@ function update_signinStatus() {
 }
 
 async function update_table() {
+    let is_success = await update_table_if_signedin();
+    if (!is_success)
+        alert("Please signin with your Google Account first.");
+}
+
+async function update_table_if_signedin() {
     let isSignedIn = gapi.auth2.getAuthInstance().isSignedIn.get();
     if (isSignedIn) {
         await data_controller.update_instances();
         table_controller.set_data(data_controller.all_instances.slice()); // copy or not??
+        return true;
     } else {
-        alert("Please signin with your Google Account first.");
+        return false;
     }
 }
 
@@ -79,7 +87,9 @@ window.onload = function() {
             .then(set_signin)
             .then(add_dom_handlers)
             .then(init_table)
-            .then(init_datacontroller);
+            .then(init_datacontroller)
+
+            .then(update_table_if_signedin);
     });
     function set_signin() {
         // Listen for sign-in state changes.
