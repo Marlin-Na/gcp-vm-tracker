@@ -136,16 +136,30 @@ class ComputeDataHandler {
         // reset this.all_instances
         this.all_instances.length = 0;
 
-        const process_response = function(response) {
+        const process_response = async function(response) {
             if (!response.result.items)
                 return;
+            let instances = [];
             for (let [zone_key, zone] of Object.entries(response.result.items)) {
                 if (zone.instances) {
                     for (let instance of zone.instances) {
-                        _this.all_instances.push(instance);
+                        instances.push(instance);
                     }
                 }
             }
+            // Fetch the machine types and insert into "instance"
+            let promises = instances.map(instance => {
+                let machineType_url = instance.machineType;
+                return gapi.client.request(machineType_url).getPromise()
+                    .then(d => d.result)
+                    .then(d => {
+                        instance.machineType_result = d;
+                    })
+            })
+            await Promise.all(promises);
+            
+            for (let instance of instances)
+                _this.all_instances.push(instance);
         };
 
         const fetch_project = async function(project) {
@@ -153,12 +167,12 @@ class ComputeDataHandler {
             try {
                 let response = await gapi.client.compute.instances.aggregatedList(request_params).getPromise();
                 _this.tick = _this.tick + 1;
-                process_response(response);
+                await process_response(response);
                 while (response.nextPageToken) {
                     request_params.pageToken = response.nextPageToken;
                     response = await gapi.client.compute.instaces.aggregatedList(request_params).getPromise();
                     _this.tick = _this.tick + 1;
-                    process_response(response);
+                    await process_response(response);
                 }
             } catch (error) {
                 console.error("Error when fetching instances", error);
@@ -198,13 +212,12 @@ class TableController {
             },
             {
                 headerName: "Machine Type",
-                field: "machineType",
                 sortable: true,
-                valueFormatter: function(params) {
-                    // something like "https://www.googleapis.com/compute/v1/projects/broad-getzlab-gdan/zones/us-central1-a/machineTypes/n1-standard-1"
-                    let machineType_url = params.value;
-                    let machineType = machineType_url.replace("https://www.googleapis.com/compute/v1/", "").split("/").slice(-1)[0];
-                    return machineType;
+                valueGetter: function(params) {
+                    // "https://www.googleapis.com/compute/v1/projects/broad-getzlab-gdan/zones/us-central1-a/machineTypes/n1-standard-1"
+                    // let machineType = machineType_url.replace("https://www.googleapis.com/compute/v1/", "").split("/").slice(-1)[0];
+                    let machineType_result = params.data.machineType_result;
+                    return machineType_result.description;
                 }
             },
             {
