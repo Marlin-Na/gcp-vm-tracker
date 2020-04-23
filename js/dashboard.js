@@ -178,14 +178,7 @@ class TableController {
             {
                 headerName: "Name",
                 field: "name",
-                sortable: true,
-                cellRenderer: function(params) {
-                    let name = params.value;
-                    let zone_url = params.data.zone;
-                    let [a, project, b, zone] = zone_url.replace("https://www.googleapis.com/compute/v1/", "").split("/");
-                    let href = "https://console.cloud.google.com/compute/instances?project=" + project;
-                    return '<a href="'+ href +'" target="_blank" >'+ name +'</a>'
-                }
+                sortable: true
             },
             {
                 headerName: "Project",
@@ -196,6 +189,11 @@ class TableController {
                     let zone_url = params.data.zone;
                     let [a, project, b, zone] = zone_url.replace("https://www.googleapis.com/compute/v1/", "").split("/");
                     return project;
+                },
+                cellRenderer: function(params) {
+                    let project = params.value;
+                    let href = "https://console.cloud.google.com/compute/instances?project=" + project;
+                    return '<a href="'+ href +'" target="_blank" >'+ project +'</a>';
                 }
             },
             {
@@ -223,7 +221,11 @@ class TableController {
                 }
             }
         ];
+        let defaultColDef = {
+            resizable: true
+        };
         let grid_options = {
+            defaultColDef: defaultColDef,
             columnDefs: columnDefs,
             rowData: [],
             domLayout: 'autoHeight'
