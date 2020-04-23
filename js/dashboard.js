@@ -188,14 +188,14 @@ class TableController {
                 }
             },
             {
-                headerName: "Project/Zone",
-                field: "zone",
+                headerName: "Project",
                 sortable: true,
-                valueFormatter: function(params) {
-                    // something like "https://www.googleapis.com/compute/v1/projects/broad-getzlab-gdan/zones/us-east1-d"
-                    let zone_url = params.value;
+                valueGetter: function(params) {
+                    // There is no 'project' field in row data, I just extract from the zone url which looks like
+                    // "https://www.googleapis.com/compute/v1/projects/broad-getzlab-gdan/zones/us-east1-d"
+                    let zone_url = params.data.zone;
                     let [a, project, b, zone] = zone_url.replace("https://www.googleapis.com/compute/v1/", "").split("/");
-                    return project + "/" + zone;
+                    return project;
                 }
             },
             {
